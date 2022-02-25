@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react"
-import {db, onSnapshot, collection, where, query} from '../firebase/config'
-
-import {useAuthContext} from './useAuthContext'
+import {db, onSnapshot, collection, where, query, orderBy} from '../firebase/config'
 
 
-export const useCollection = (collectionName) => {
+export const useCollection = (collectionName, uid) => {
     const [documents, setDocuments] = useState(null)
     const [error, setError] = useState(null)
-    const {user} = useAuthContext() 
 
     useEffect(() => {
-        console.log('user id: ', user.uid)
-        const q = query(collection(db, collectionName), where('uid', '==', user.uid))
+        const q = query(collection(db, collectionName), where('uid', '==', uid), orderBy('createdAt', 'desc'))
         const unsub = onSnapshot(q, (snapshot) => {
             let results = []
             snapshot.docs.forEach(doc => results.push({...doc.data(), id: doc.id}))
@@ -21,13 +17,13 @@ export const useCollection = (collectionName) => {
             setError(null)
         }, (error) => {
             console.log(error)
-            setError('could not fetch data')
+            setError(error.message)
         })
         
         // unsubscribe on component unmount
         return unsub
 
-    }, [collectionName])
+    }, [collectionName, uid])
 
     return {documents, error}
 }

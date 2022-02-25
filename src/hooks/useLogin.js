@@ -16,7 +16,6 @@ export const useLogin = () => {
         try {
             const auth = getAuth()
             const res = await signInWithEmailAndPassword(auth, email, password)
-            console.log('logged in: ', res.user)
             dispatch({type: 'LOGIN', payload: res.user})
             if(!isCancelled){
                 setIsPending(false)
@@ -25,7 +24,7 @@ export const useLogin = () => {
         } catch(err) {
             if(!isCancelled) {
                 console.log(err.message)
-                setError(err.message)
+                setError('Oops, cannot find account with the login details provided. Please try again.')
                 setIsPending(false)
             }
         }
